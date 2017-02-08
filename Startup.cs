@@ -29,6 +29,11 @@ namespace signalr_test
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddSignalR(options =>
+            {
+                options.Hubs.EnableDetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +60,9 @@ namespace signalr_test
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseWebSockets();
+            app.UseSignalR();
         }
     }
 }
