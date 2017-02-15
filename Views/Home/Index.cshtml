@@ -7,9 +7,9 @@
 
         $(function () {
             // Declare a proxy to reference the hub. 
-            var chat = $.connection.loanHub;
+            var loanHub = $.connection.loanHub;
             // Create a function that the hub can call to broadcast messages.
-            chat.client.broadcastMessage = function (message) {
+            loanHub.client.broadcastMessage = function (message) {
                 var encodedMessage = $('<div />').text(message).html();
                 // Add the message to the page. 
                 $('#discussion').append('<li>' + encodedMessage + '</li>');
@@ -19,7 +19,7 @@
             $.connection.hub.start().done(function () {
                 $('#sendmessage').click(function () {
                     // Call the Send method on the hub. 
-                    chat.server.send(currentSubscribe, $('#message').val());
+                    loanHub.server.send(currentSubscribe, $('#message').val());
                     // Clear text box and reset focus for next comment. 
                     $('#message').val('').focus();
                 });
@@ -27,7 +27,20 @@
                     currentSubscribe = $('#subscribeLoan').val();
                     $('#loan').text(currentSubscribe);
                     $('#subscribeLoan').val('');
-                    chat.server.joinLoan(currentSubscribe);
+                    loanHub.server.joinLoan(currentSubscribe);
+                });
+                $('#lookupPerson').click(function() {
+                    var id = $('#personId').val();
+                    $('#personId').val('');
+
+                    loanHub.server.lookupPerson(id)
+                        .done(function(person) {
+                            console.log(person);
+                            $('#personName').text(person.Name);
+                        })
+                        .fail(function() {
+                            console.log('Request failed');
+                        });
                 });
             });
 
@@ -36,8 +49,13 @@
 
 <h1 id="loan"></h1>
 
-<input type="test" id="subscribeLoan"> <button id="sendSubscribeLoan">Subscribe</button>
+<input type="text" id="subscribeLoan"> <button id="sendSubscribeLoan">Subscribe</button>
 <br/><br/>
 <input type="text" id="message"> <button id="sendmessage">Send</button>
 
 <div id="discussion"></div>
+
+<br/><br/>
+<input type="text" id="personId"> <button id="lookupPerson">Lookup Person</button>
+<br/>
+<div id="personName"></div>
